@@ -1,6 +1,6 @@
 {
   "name": "node-html-to-object",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "converts a HTML string into an object",
   "main": "./build/index.js",
   "types": "./types/index.d.ts",

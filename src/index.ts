@@ -4,6 +4,7 @@ import { Element, pos, Attribute } from "./types";
 class Parser {
     private static readonly a: string[] = ["br", "hr", "img", "input", "link", "meta", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "!DOCTYPE html"];
     public static parse(html: string) {
+        html = html.split("\n").join("");
         const root: Element = {
             tag: 'parse-root', children: [], closed: false,
             attributes: [],
@@ -96,7 +97,7 @@ class Parser {
      * @param {number} startPos - The starting position to search from.
      * @returns {Object|number} An object with start and end positions of the tag, or -1 if no tag is found.
      */
-    private static getNextTagPosition(html: string, startPos: number) {
+    private static getNextTagPosition(html: string, startPos: number): { start: number, end: number } | -1 {
         const tagStart = html.indexOf('<', startPos);
         if (tagStart === -1) return -1;
 
@@ -111,7 +112,7 @@ class Parser {
      * @param {string} tag - The HTML tag to strip characters from.
      * @returns {string} The tag name without any characters.
      */
-    private static stripTagCharacters(tag: string) {
+    private static stripTagCharacters(tag: string): string {
         return tag.replace(/[<>/]/g, '');
     }
 }
