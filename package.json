@@ -17,5 +17,12 @@
   ],
   "author": "roteKlaue",
   "license": "GPL-3.0",
-  "dependencies": {}
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roteKlaue/html-to-object.git"
+  },
+  "bugs": {
+    "url": "https://github.com/roteKlaue/html-to-object/issues"
+  },
+  "homepage": "https://github.com/roteKlaue/html-to-object#readme"
 }
