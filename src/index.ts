@@ -2,13 +2,10 @@ import { OpeningClosingTagMissMatchError, MissingClosingTagError } from "./error
 import { Element, pos, Attribute } from "./types";
 
 class Parser {
-    private readonly a: string[] = ["br", "hr", "img", "input", "link", "meta", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "!DOCTYPE html"];
-    private base?: Element;
-    constructor() { }
-
-    public parse(html: string) {
+    private static readonly a: string[] = ["br", "hr", "img", "input", "link", "meta", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "!DOCTYPE html"];
+    public static parse(html: string) {
         const root: Element = {
-            tag: 'root', children: [], closed: false,
+            tag: 'parse-root', children: [], closed: false,
             attributes: [],
             type: "Element"
         };
@@ -27,19 +24,27 @@ class Parser {
             }
             // @ts-ignore
             const tag = html.slice(startPos.start, this.getNextTagPosition(html, startPos.start).end);
-            const strippedTag = this.stripTagCharacters(tag);
+            const strippedTag = this.stripTagCharacters(tag).split(" ")[0];
 
             if (tag.includes("/")) {
-                const lastOpenObject = objects[objects.length - 1];
-                if (lastOpenObject.tag !== strippedTag) {
-                    throw new OpeningClosingTagMissMatchError(`Unexpected closing tag ${strippedTag}. Expected closing tag for ${lastOpenObject.tag}`);
-                }
-                lastOpenObject.closed = true;
-                objects.pop();
-                currentIndex--;
-                while (objects[currentIndex]?.closed) {
+                if (this.a.includes(strippedTag)) {
+                    const newObject: Element = {
+                        tag: strippedTag, children: [], closed: true, type: "Element",
+                        attributes: this.parseAttributes(tag)
+                    };
+                    objects[currentIndex].children.push(newObject);
+                } else {
+                    const lastOpenObject = objects[objects.length - 1];
+                    if (lastOpenObject.tag !== strippedTag) {
+                        throw new OpeningClosingTagMissMatchError(`Unexpected closing tag ${strippedTag}. Expected closing tag for ${lastOpenObject.tag}`);
+                    }
+                    lastOpenObject.closed = true;
                     objects.pop();
                     currentIndex--;
+                    while (objects[currentIndex]?.closed) {
+                        objects.pop();
+                        currentIndex--;
+                    }
                 }
             } else {
                 const newObject: Element = {
@@ -47,8 +52,13 @@ class Parser {
                     attributes: this.parseAttributes(tag)
                 };
                 objects[currentIndex].children.push(newObject);
-                objects.push(newObject);
-                currentIndex++;
+
+                if (this.a.includes(strippedTag)) {
+                    newObject.closed = true;
+                } else {
+                    objects.push(newObject);
+                    currentIndex++;
+                }
             }
 
             // @ts-ignore
@@ -68,7 +78,7 @@ class Parser {
      * @param {string} html - The HTML tag to parse.
      * @returns {Array} An array of objects representing the attributes of the HTML tag.
      */
-    private parseAttributes(html: string): Attribute[] {
+    private static parseAttributes(html: string): Attribute[] {
         const attributeRegex = /([^\s=]+)="([^"]+)"/g;
         const attributeMatches = html.matchAll(attributeRegex);
 
@@ -86,7 +96,7 @@ class Parser {
      * @param {number} startPos - The starting position to search from.
      * @returns {Object|number} An object with start and end positions of the tag, or -1 if no tag is found.
      */
-    private getNextTagPosition(html: string, startPos: number) {
+    private static getNextTagPosition(html: string, startPos: number) {
         const tagStart = html.indexOf('<', startPos);
         if (tagStart === -1) return -1;
 
@@ -101,7 +111,7 @@ class Parser {
      * @param {string} tag - The HTML tag to strip characters from.
      * @returns {string} The tag name without any characters.
      */
-    private stripTagCharacters(tag: string) {
+    private static stripTagCharacters(tag: string) {
         return tag.replace(/[<>/]/g, '');
     }
 }
