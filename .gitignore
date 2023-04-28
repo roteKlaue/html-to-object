@@ -1,0 +1,5 @@
+/build
+/types
+/node_modules
+test.js
+test.ts
