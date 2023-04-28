@@ -2,7 +2,7 @@ import { OpeningClosingTagMissMatchError, MissingClosingTagError } from "./error
 import { Element, pos, Attribute } from "./types";
 
 class Parser {
-    private static readonly a: string[] = ["br", "hr", "img", "input", "link", "meta", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "!DOCTYPE html"];
+    private static readonly a: string[] = ["br", "hr", "img", "input", "link", "meta", "area", "base", "col", "command", "embed", "keygen", "param", "source", "track", "wbr", "!DOCTYPE"];
     public static parse(html: string) {
         html = html.split("\n").join("");
         const root: Element = {
@@ -27,7 +27,7 @@ class Parser {
             const tag = html.slice(startPos.start, this.getNextTagPosition(html, startPos.start).end);
             const strippedTag = this.stripTagCharacters(tag).split(" ")[0];
 
-            if (tag.includes("/")) {
+            if (tag.includes("</")) {
                 if (this.a.includes(strippedTag)) {
                     const newObject: Element = {
                         tag: strippedTag, children: [], closed: true, type: "Element",
@@ -113,7 +113,7 @@ class Parser {
      * @returns {string} The tag name without any characters.
      */
     private static stripTagCharacters(tag: string): string {
-        return tag.replace(/[<>/]/g, '');
+        return tag.replace(/[<>/\\]/g, '');
     }
 }
 
